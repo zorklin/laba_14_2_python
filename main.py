@@ -1,32 +1,48 @@
-import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
-x = np.array([2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015])
-gdp_growth_canada = np.array([5.2, 1.8, 2.9, 1.9, 3.1, 3.2, 2.7, 2.2, 1.0, -2.9, 3.4, 3.1, 1.7, 2.5, 2.9, 0.7])
-gdp_growth_austria = np.array([3.8, 0.8, 0.9, 1.1, 2.3, 2.7, 3.7, 3.8, 1.4, -3.8, 1.9, 2.7, 0.7, 0.2, 0.6, 1.1])
+file_name = "data.csv"
 
-plt.plot(x, gdp_growth_canada, label = "Canada", color = "blue")
-plt.plot(x, gdp_growth_austria, label = "Austria", color = "green")
-plt.title("GDP Growth Rate in % for Canada and Austria (2000-2015)", fontsize = 15)
-plt.xlabel('Year', fontsize = 10, color = 'black')
-plt.ylabel('GDP Growth Rate in %', fontsize = 10, color = 'black')
+try:
+    data = pd.read_csv(file_name)
+except FileNotFoundError:
+    print(f"error, file {file_name} not found")
+    exit()
+except pd.errors.EmptyDataError:
+    print("error, file is empty")
+    exit()
+except pd.errors.ParserError:
+    print("error parser")
+    exit()
+
+data_ukraine = data[data['Country Name'] == 'Ukraine']
+data_usa = data[data['Country Name'] == 'United States']
+
+years = [f"{year} [YR{year}]" for year in range(2000, 2016)]
+gdp_ukraine = data_ukraine[years].values.flatten()
+gdp_usa = data_usa[years].values.flatten()
+
+plt.figure(figsize = (10, 5))
+plt.plot(range(2000, 2016), gdp_ukraine, label = "Ukraine", marker = 'o', color = 'blue')
+plt.plot(range(2000, 2016), gdp_usa, label = "United States", marker = 'o', color = 'green')
+plt.xlabel('Year')
+plt.ylabel('GDP growth (in %)')
+plt.title('GDP growth for Ukraine and United States')
 plt.legend()
 plt.show()
 
-country = input("Enter country names ('Canada' або 'Austria'): ").strip().capitalize()
-
-if country == "Canada":
-    data = gdp_growth_canada
-elif country == "Austria":
-    data = gdp_growth_austria
+country_input = input("Enter country name (Ukraine or United States): ")
+if country_input == 'Ukraine':
+    gdp_data = gdp_ukraine
+elif country_input == 'United States':
+    gdp_data = gdp_usa
 else:
-    print("Err")
-    data = None
+    print("error name")
+    exit()
 
-
-if data is not None:
-    plt.bar(x, data, color = "red")
-    plt.title(f'GDP Growth Rate (%) for {country} (2000-2015)', fontsize = 15)
-    plt.xlabel('Year', fontsize = 10, color = 'black')
-    plt.ylabel('GDP Growth Rate (%)', fontsize = 10, color = 'black')
-    plt.show()
+plt.figure(figsize = (10, 5))
+plt.bar(range(2000, 2016), gdp_data, color = 'orange' if country_input == 'Ukraine' else 'purple')
+plt.xlabel('Year')
+plt.ylabel('GDP growth (in %)')
+plt.title(f'GDP growth for {country_input}')
+plt.show()
